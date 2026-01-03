@@ -20,7 +20,8 @@ jobs:
       - name: Build and push image to ACR
         run: |
           az acr login --name jimmydev2026
-          docker build . -t jimmydev2026.azurecr.io/jimmydev2026-app:${{ github.sha }}
+          # Replace 'MyProjectFolder' with the actual folder name where your Dockerfile lives
+          docker build ./MyProjectFolder -t jimmydev2026.azurecr.io/jimmydev2026-app:${{ github.sha }}
           docker push jimmydev2026.azurecr.io/jimmydev2026-app:${{ github.sha }}
 
       - name: Deploy to Azure Container App
