@@ -13,7 +13,7 @@ interface CityWeather {
 }
 
 function App() {
-    const [forecasts, setForecasts] = useState<CityWeather[]>([{ cityName: "New York", data: []}, {cityName: "Tokyo", data: []}, {cityName: "London", data: [] }]);
+    const [forecasts, setForecasts] = useState<CityWeather[]>([{ cityName: "New York", data: []}, {cityName: "Tokyo", data: []}, {cityName: "London", data: [] }, { cityName: "Beijin", data: []}]);
 
     useEffect(() => {
         // trigger all three requests at once
