@@ -17,19 +17,22 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # We are bypassing the login-action plugin to avoid the DNS masking bug
-      - name: Log in to ACR (Native Shell)
-        run: |
-          echo "${{ secrets.ACR_PASSWORD }}" | docker login jimmydev2026.azurecr.io -u ${{ secrets.ACR_USERNAME }} --password-stdin
+      - name: Log in to Azure Container Registry
+        uses: docker/login-action@v3
+        with:
+          # This must match the 'az acr show' output exactly
+          registry: jimmydev2026-f9eebqfpctgbghgc.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Build and push image to ACR
         run: |
-          docker build . -f ReactDotNetApp.Server/Dockerfile -t jimmydev2026.azurecr.io/jimmydev2026-app:${{ github.sha }}
-          docker push jimmydev2026.azurecr.io/jimmydev2026-app:${{ github.sha }}
+          docker build . -f ReactDotNetApp.Server/Dockerfile -t jimmydev2026-f9eebqfpctgbghgc.azurecr.io/jimmydev2026-app:${{ github.sha }}
+          docker push jimmydev2026-f9eebqfpctgbghgc.azurecr.io/jimmydev2026-app:${{ github.sha }}
 
       - name: Deploy to Azure Container App
         uses: azure/container-apps-deploy-action@v1
         with:
           resourceGroup: React-DotNet-App-Resource-Group
           containerAppName: jimmydev2026-app
-          imageToDeploy: jimmydev2026.azurecr.io/jimmydev2026-app:${{ github.sha }}
+          imageToDeploy: jimmydev2026-f9eebqfpctgbghgc.azurecr.io/jimmydev2026-app:${{ github.sha }}
