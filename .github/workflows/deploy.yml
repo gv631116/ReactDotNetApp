@@ -19,13 +19,13 @@ jobs:
 
       - name: Build and push image to ACR
         run: |
-          az acr login --name jimmydev2026-f9eebqfpctgbghgc
-          docker build . -t jimmydev2026-f9eebqfpctgbghgc.azurecr.io/jimmydev2026-app:${{ github.sha }}
-          docker push jimmydev2026-f9eebqfpctgbghgc.azurecr.io/jimmydev2026-app:${{ github.sha }}
+          az acr login --name jimmydev2026
+          docker build . -t jimmydev2026.azurecr.io/jimmydev2026-app:${{ github.sha }}
+          docker push jimmydev2026.azurecr.io/jimmydev2026-app:${{ github.sha }}
 
       - name: Deploy to Azure Container App
         uses: azure/container-apps-deploy-action@v1
         with:
           resourceGroup: React-DotNet-App-Resource-Group
           containerAppName: jimmydev2026-app
-          imageToDeploy: jimmydev2026-f9eebqfpctgbghgc.azurecr.io/jimmydev2026-app:${{ github.sha }}
+          imageToDeploy: jimmydev2026.azurecr.io/jimmydev2026-app:${{ github.sha }}
