@@ -3,23 +3,26 @@ name: Build and deploy to Azure Container App
 on:
   push:
     branches:
-      - master  # Verified: matches your branch name
+      - master
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      # 1. Pull the code from your repository
       - name: Checkout to the branch
         uses: actions/checkout@v4
 
-      # 2. Log in to Azure using the Service Principal JSON
+      # This step helps us debug. If it says "Empty", the secret isn't saved correctly.
+      - name: Verify Secret Loading
+        run: |
+          if [ -z "${{ secrets.ACR_USERNAME }}" ]; then echo "ACR_USERNAME is EMPTY"; else echo "ACR_USERNAME is found"; fi
+          if [ -z "${{ secrets.ACR_PASSWORD }}" ]; then echo "ACR_PASSWORD is EMPTY"; else echo "ACR_PASSWORD is found"; fi
+
       - name: Azure Login
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # 3. Log in to ACR using Docker Login (Admin credentials)
       - name: Log in to Azure Container Registry
         uses: docker/login-action@v3
         with:
@@ -27,15 +30,11 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      # 4. Build and Push the image
-      # Context is '.' (root) so it can see all project files.
-      # File points to the Dockerfile in your Server subfolder.
       - name: Build and push image to ACR
         run: |
           docker build . -f ReactDotNetApp.Server/Dockerfile -t jimmydev2026.azurecr.io/jimmydev2026-app:${{ github.sha }}
           docker push jimmydev2026.azurecr.io/jimmydev2026-app:${{ github.sha }}
 
-      # 5. Update the Azure Container App with the new image
       - name: Deploy to Azure Container App
         uses: azure/container-apps-deploy-action@v1
         with:
