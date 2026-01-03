@@ -3,7 +3,7 @@ name: Build and deploy to Azure Container App
 on:
   push:
     branches:
-      - master  # Matches your specific branch name
+      - master  # Verified: matches your branch name
 
 jobs:
   build-and-deploy:
@@ -13,13 +13,13 @@ jobs:
       - name: Checkout to the branch
         uses: actions/checkout@v4
 
-      # 2. Log in to Azure using the Service Principal JSON secret
+      # 2. Log in to Azure using the Service Principal JSON
       - name: Azure Login
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # 3. Log in to ACR using Admin credentials (prevents DNS/Host errors)
+      # 3. Log in to ACR using Docker Login (Admin credentials)
       - name: Log in to Azure Container Registry
         uses: docker/login-action@v3
         with:
@@ -27,13 +27,15 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      # 4. Build the image using the Server subfolder path
+      # 4. Build and Push the image
+      # Context is '.' (root) so it can see all project files.
+      # File points to the Dockerfile in your Server subfolder.
       - name: Build and push image to ACR
         run: |
           docker build . -f ReactDotNetApp.Server/Dockerfile -t jimmydev2026.azurecr.io/jimmydev2026-app:${{ github.sha }}
           docker push jimmydev2026.azurecr.io/jimmydev2026-app:${{ github.sha }}
 
-      # 5. Tell Azure Container Apps to pull the new image
+      # 5. Update the Azure Container App with the new image
       - name: Deploy to Azure Container App
         uses: azure/container-apps-deploy-action@v1
         with:
